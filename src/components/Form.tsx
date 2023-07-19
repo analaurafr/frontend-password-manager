@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './Form.css';
 
 interface Service {
+  id: string;
   nameService: string;
   login: string;
   password: string;
@@ -14,6 +15,7 @@ interface FormVisibility {
 
 function Form({ onCancel }: FormVisibility) {
   const [formData, setFormData] = useState<Service>({
+    id: '',
     nameService: '',
     login: '',
     password: '',
@@ -22,6 +24,7 @@ function Form({ onCancel }: FormVisibility) {
 
   const [isFormValid, setIsFormValid] = useState(false);
   const [services, setServices] = useState<Service[]>([]);
+  const [hidePasswords, setHidePasswords] = useState(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -48,6 +51,7 @@ function Form({ onCancel }: FormVisibility) {
     event.preventDefault();
 
     const newService: Service = {
+      id: Date.now().toString(),
       nameService: formData.nameService,
       login: formData.login,
       password: formData.password,
@@ -56,11 +60,20 @@ function Form({ onCancel }: FormVisibility) {
 
     setServices((prevServices) => [...prevServices, newService]);
     setFormData({
+      id: '',
       nameService: '',
       login: '',
       password: '',
       url: '',
     });
+  };
+
+  const handleRemove = (id: string) => {
+    setServices((prevServices) => prevServices.filter((service) => service.id !== id));
+  };
+
+  const toggleHidePasswords = () => {
+    setHidePasswords((prevState) => !prevState);
   };
 
   return (
@@ -127,8 +140,8 @@ function Form({ onCancel }: FormVisibility) {
               Cadastrar nova senha
             </button>
             <ul>
-              {services.map((service, index) => (
-                <li key={ index }>
+              {services.map((service) => (
+                <li key={ service.id }>
                   <a href={ service.url }>{service.nameService}</a>
                   <p>
                     Login:
@@ -138,8 +151,15 @@ function Form({ onCancel }: FormVisibility) {
                   <p>
                     Senha:
                     {' '}
-                    {service.password}
+                    {hidePasswords ? '******' : service.password}
                   </p>
+                  <button
+                    type="button"
+                    onClick={ () => handleRemove(service.id) }
+                    data-testid="remove-btn"
+                  >
+                    Remover
+                  </button>
                 </li>
               ))}
             </ul>
@@ -149,9 +169,15 @@ function Form({ onCancel }: FormVisibility) {
           Cancelar
         </button>
       </form>
-      {services.length === 0 && (
-        <p>Nenhuma senha cadastrada</p>
-      )}
+      {services.length === 0 && <p data-testid="no-password">Nenhuma senha cadastrada</p>}
+      <label>
+        <input
+          type="checkbox"
+          checked={ hidePasswords }
+          onChange={ toggleHidePasswords }
+        />
+        Esconder senhas
+      </label>
     </div>
   );
 }
