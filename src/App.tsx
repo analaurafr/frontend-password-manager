@@ -1,16 +1,17 @@
 import './App.css';
+import { useState } from 'react';
 import Header from './components/Header';
 import Form from './components/Form';
-import FormResults from './components/FormResults';
 
 function App() {
+  const [showForm, setShowForm] = useState(false);
+
   return (
-    <div className="app-container">
-      <div className="form-container">
-        <Header />
-        <Form />
-        <FormResults />
-      </div>
+    <div>
+      <Header />
+      {showForm && <Form onCancel={ () => setShowForm(false) } /> }
+      { !showForm
+      && <button onClick={ () => setShowForm(true) }>Cadastrar nova senha</button> }
     </div>
   );
 }

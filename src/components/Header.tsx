@@ -3,7 +3,7 @@ import './Header.css';
 
 function Header() {
   return (
-    <h1 className="form-header">Gerenciador de Senhas</h1>
+    <h1>Gerenciador de Senhas</h1>
   );
 }
 
