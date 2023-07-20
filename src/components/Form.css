@@ -1,43 +1,69 @@
-.button-cancelar {
-  background-color: #f44336;
-  border: none;
-  border-radius: 4px;
-  color: white;
-  cursor: pointer;
-  display: inline-block;
-  font-size: 16px;
-  padding: 8px 16px;
-  text-align: center;
+/* Estilo para a aplicação */
+body {
+  align-items: center;
+  background-color: #6a4e6d;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  margin: 0;
 }
 
-.button-cadastrar {
+/* Estilo para o botão "Cadastrar" */
+.form-container button {
   background-color: #4caf50;
-  border: none;
-  border-radius: 4px;
+  border-color: #6a4e6d;
+  border-radius: 5px;
   color: white;
   cursor: pointer;
-  display: inline-block;
-  font-size: 16px;
-  margin-right: 10px;
-  padding: 8px 16px;
-  text-align: center;
-}
-
-.form-input {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-  padding: 8px;
+  padding: 10px;
   width: 100%;
 }
 
-.form-label {
-  display: block;
-  font-weight: 700;
-  margin-bottom: 10px;
+/* Estilo para o container do formulário */
+.form-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  padding: 20px;
 }
 
-.question-container {
-  margin: 0 auto;
-  max-width: 400px;
+/* Estilo para os parágrafos de validação da senha */
+.form-container p {
+  margin: 5px 0;
+}
+
+/* Estilo para o link do serviço cadastrado */
+.form-container a {
+  color: black;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Estilo para o título da aplicação */
+h1 {
+  color: whitesmoke;
+  text-align: center;
+}
+
+/* Estilo para as mensagens de validação de senha */
+.form-container .valid-password-check {
+  color: green;
+}
+
+.form-container .invalid-password-check {
+  color: red;
+}
+
+/* Estilo para labels e inputs */
+.form-container label {
+  display: block;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.form-container input {
+  display: block;
+  margin-bottom: 10px;
+  width: 100%;
 }

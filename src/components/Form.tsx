@@ -1,183 +1,190 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import './Form.css';
 
-interface Service {
-  id: string;
-  nameService: string;
-  login: string;
-  password: string;
-  url: string;
-}
+// estado inicial do formulário
+const initialFormValues = {
+  name: '',
+  login: '',
+  password: '',
+  url: '',
+};
 
-interface FormVisibility {
-  onCancel: () => void;
-}
+// constantes para as classes de validação de senha
+const invalidPasswordCheck = 'invalid-password-check';
+const validPasswordCheck = 'valid-password-check';
 
-function Form({ onCancel }: FormVisibility) {
-  const [formData, setFormData] = useState<Service>({
-    id: '',
-    nameService: '',
-    login: '',
-    password: '',
-    url: '',
+function Form() {
+  // Estado para controlar a exibição do formulário
+  const [form, setForm] = useState(false);
+  // Estado para armazenar os valores do formulário
+  const [formValues, setFormValues] = useState(initialFormValues);
+  // Estado para armazenar a lista de formulários cadastrados
+  const [formList, setFormList] = useState<{
+    name: string; login: string; password: string; url: string; }[]>([]);
+  // Estado para armazenar as validações de senha
+  const [validation, setValidation] = useState({
+    minLength: invalidPasswordCheck,
+    maxLength: invalidPasswordCheck,
+    lettersAndNumbers: invalidPasswordCheck,
+    hasSpecialChar: invalidPasswordCheck,
   });
-
-  const [isFormValid, setIsFormValid] = useState(false);
-  const [services, setServices] = useState<Service[]>([]);
+  // Estado para controlar o checkbox "Esconder senhas"
   const [hidePasswords, setHidePasswords] = useState(false);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-    validateForm();
+  // Função para limpar todos os campos do formulário
+  const resetForm = () => {
+    setFormValues(initialFormValues);
+    resetValidation();
   };
 
-  const isNomeServicoValid = formData.nameService.length > 0;
-  const isLoginValid = formData.login.length > 0;
-  const isSenhaValid = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/.test(
-    formData.password,
-  );
-
-  const validateForm = () => {
-    setIsFormValid(isNomeServicoValid && isLoginValid && isSenhaValid);
-  };
-
-  const getPasswordValidationMessage = (isValid: boolean, message: string) => {
-    const className = isValid ? 'valid-password-check' : 'invalid-password-check';
-    return <div className={ className }>{message}</div>;
-  };
-
-  const handleCadastro = (event: React.FormEvent) => {
-    event.preventDefault();
-
-    const newService: Service = {
-      id: Date.now().toString(),
-      nameService: formData.nameService,
-      login: formData.login,
-      password: formData.password,
-      url: formData.url,
-    };
-
-    setServices((prevServices) => [...prevServices, newService]);
-    setFormData({
-      id: '',
-      nameService: '',
-      login: '',
-      password: '',
-      url: '',
+  // Função para redefinir as validações de senha
+  const resetValidation = () => {
+    setValidation({
+      minLength: invalidPasswordCheck,
+      maxLength: invalidPasswordCheck,
+      lettersAndNumbers: invalidPasswordCheck,
+      hasSpecialChar: invalidPasswordCheck,
     });
   };
 
-  const handleRemove = (id: string) => {
-    setServices((prevServices) => prevServices.filter((service) => service.id !== id));
+  // Função para remover um formulário da lista pelo ID
+  const removeFormById = (id: string) => {
+    setFormList((prevFormList) => prevFormList.filter((formData) => formData.url !== id));
   };
 
-  const toggleHidePasswords = () => {
-    setHidePasswords((prevState) => !prevState);
+  // Função para salvar um formulário na lista
+  const addFormToList = () => {
+    setFormList((prevFormList) => [...prevFormList, formValues]);
+    resetForm();
+    setForm(false);
+  };
+
+  // Função para atualizar o estado do formulário conforme os campos são preenchidos
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    field: string,
+  ) => {
+    const { value } = event.target;
+    setFormValues({ ...formValues, [field]: value });
+    if (field === 'password') {
+      validatePassword({ password: value });
+    }
+  };
+
+  // Função para validar a senha e atualizar o estado de validação
+  const validatePassword = ({ password }: { password: string }) => {
+    const validations = {
+      minLength: password.length >= 8 ? validPasswordCheck : invalidPasswordCheck,
+      maxLength: password.length <= 16 ? validPasswordCheck : invalidPasswordCheck,
+      lettersAndNumbers: /\d/.test(password) && /[a-zA-Z]/.test(password) ? validPasswordCheck : invalidPasswordCheck,
+      hasSpecialChar: /[^a-zA-Z0-9]/.test(password) ? validPasswordCheck : invalidPasswordCheck,
+    };
+    setValidation(validations);
+  };
+
+  // Função para verificar a validade do formulário
+  const isFormValid = () => {
+    const { name, login, password } = formValues;
+
+    const validations = [
+      name !== '',
+      login !== '',
+      password.length >= 8,
+      password.length <= 16,
+      /\d/.test(password),
+      /[a-zA-Z]/.test(password),
+      /[^a-zA-Z0-9]/.test(password),
+    ];
+
+    return validations.every((isValid) => isValid);
   };
 
   return (
-    <div>
-      <form onSubmit={ handleCadastro }>
+    <div className="form-container">
+      {form && (
         <div>
-          <label htmlFor="nameService">Nome do serviço</label>
+          <label htmlFor="name">Nome do Serviço</label>
           <input
             type="text"
-            id="nameService"
-            name="nameService"
-            value={ formData.nameService }
-            onChange={ handleChange }
+            id="name"
+            value={ formValues.name }
+            onChange={ (event) => handleInputChange(event, 'name') }
           />
-
           <label htmlFor="login">Login</label>
           <input
             type="text"
             id="login"
-            name="login"
-            value={ formData.login }
-            onChange={ handleChange }
+            value={ formValues.login }
+            onChange={ (event) => handleInputChange(event, 'login') }
           />
-
           <label htmlFor="password">Senha</label>
           <input
             type="password"
             id="password"
-            name="password"
-            value={ formData.password }
-            onChange={ handleChange }
+            value={ formValues.password }
+            onChange={ (event) => handleInputChange(event, 'password') }
           />
-
           <label htmlFor="url">URL</label>
-          <input type="text" id="url" name="url" onChange={ handleChange } />
-        </div>
-
-        {getPasswordValidationMessage(
-          formData.password.length >= 8,
-          'Possuir 8 ou mais caracteres',
-        )}
-        {getPasswordValidationMessage(
-          formData.password.length <= 16,
-          'Possuir até 16 caracteres',
-        )}
-        {getPasswordValidationMessage(
-          /(?=.*[A-Za-z])(?=.*\d)/.test(formData.password),
-          'Possuir letras e números',
-        )}
-        {getPasswordValidationMessage(
-          /(?=.*[@$!%*#?&])/.test(formData.password),
-          'Possuir algum caractere especial',
-        )}
-
-        <br />
-        <br />
-        {services.length === 0 ? (
-          <button type="submit" disabled={ !isFormValid }>
+          <input
+            type="text"
+            id="url"
+            value={ formValues.url }
+            onChange={ (event) => handleInputChange(event, 'url') }
+          />
+          <button disabled={ !isFormValid() } onClick={ addFormToList }>
             Cadastrar
           </button>
-        ) : (
-          <>
-            <button type="button" onClick={ onCancel }>
-              Cadastrar nova senha
-            </button>
-            <ul>
-              {services.map((service) => (
-                <li key={ service.id }>
-                  <a href={ service.url }>{service.nameService}</a>
-                  <p>
-                    Login:
-                    {' '}
-                    {service.login}
-                  </p>
-                  <p>
-                    Senha:
-                    {' '}
-                    {hidePasswords ? '******' : service.password}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={ () => handleRemove(service.id) }
-                    data-testid="remove-btn"
-                  >
-                    Remover
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-        <button type="button" onClick={ onCancel }>
-          Cancelar
-        </button>
-      </form>
-      {services.length === 0 && <p data-testid="no-password">Nenhuma senha cadastrada</p>}
-      <label>
-        <input
-          type="checkbox"
-          checked={ hidePasswords }
-          onChange={ toggleHidePasswords }
-        />
-        Esconder senhas
-      </label>
+          <button onClick={ () => setForm(false) }>Cancelar</button>
+          <div>
+            <p className={ `form-validation ${validation.minLength}` }>
+              Possuir 8 ou mais caracteres
+            </p>
+            <p className={ `form-validation ${validation.maxLength}` }>
+              Possuir até 16 caracteres
+            </p>
+            <p className={ `form-validation ${validation.lettersAndNumbers}` }>
+              Possuir letras e números
+            </p>
+            <p className={ `form-validation ${validation.hasSpecialChar}` }>
+              Possuir algum caractere especial
+            </p>
+          </div>
+        </div>
+      )}
+
+      {!form && (
+        <>
+          <button onClick={ () => setForm(true) }>Cadastrar nova senha</button>
+          <div>
+            <input
+              type="checkbox"
+              id="hidePasswordsCheckbox"
+              checked={ hidePasswords }
+              onChange={ () => setHidePasswords(!hidePasswords) }
+            />
+            <label htmlFor="hidePasswordsCheckbox">Esconder senhas</label>
+          </div>
+          {formList.length === 0 && <p>Nenhuma senha cadastrada</p>}
+        </>
+      )}
+
+      {formList.length > 0 && (
+        <div>
+          {formList.map((formInfo) => (
+            <div key={ formInfo.url }>
+              <a href={ formInfo.url }>{ formInfo.name }</a>
+              <p>{ formInfo.login }</p>
+              <p>{ hidePasswords ? '******' : formInfo.password }</p>
+              <button
+                data-testid="remove-btn"
+                onClick={ () => removeFormById(formInfo.url) }
+              >
+                Apagar cadastro
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
