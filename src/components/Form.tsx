@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Form.css';
+import Swal from 'sweetalert2';
 
 // estado inicial do formulário
 const initialFormValues = {
@@ -57,6 +58,14 @@ function Form() {
     setFormList((prevFormList) => [...prevFormList, formValues]);
     resetForm();
     setForm(false);
+
+    // alerta usando SweetAlert2
+    Swal.fire({
+      icon: 'success',
+      title: 'Serviço cadastrado com sucesso',
+      showConfirmButton: false,
+      timer: 1500, // 1.5 segundos
+    });
   };
 
   // Função para atualizar o estado do formulário conforme os campos são preenchidos
