@@ -26,7 +26,7 @@ O objetivo principal deste projeto é:
 ## Tecnologias Utilizadas
 
 -   React
--   JavaScript (ES6)
+-   Typescript
 -   HTML
 -   CSS
 -   sweetalert2
